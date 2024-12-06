@@ -17,5 +17,6 @@ public interface VehicleDAO {
     boolean removeVehicle(String vin);
 
     List<Vehicle> findAllVehicles();
+    Vehicle findVehicleByVin(String vin);
 
 }

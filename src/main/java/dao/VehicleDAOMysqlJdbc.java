@@ -297,5 +297,36 @@ public class VehicleDAOMysqlJdbc implements VehicleDAO{
         return vehicles;
     }
 
+    @Override
+    public Vehicle findVehicleByVin(String vin) {
+        String query = "SELECT * FROM vehicles WHERE vin = ?";
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            preparedStatement.setString(1, vin);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                return new Vehicle(
+                        resultSet.getString("vin"),
+                        resultSet.getInt("year"),
+                        resultSet.getString("make"),
+                        resultSet.getString("model"),
+                        resultSet.getString("VehicleType"),
+                        resultSet.getString("color"),
+                        resultSet.getInt("odometer"),
+                        resultSet.getDouble("price"),
+                        resultSet.getBoolean("sold")
+                );
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Database error: Unable to find vehicle by VIN.");
+        }
+
+        return null;
+    }
+
 
 }

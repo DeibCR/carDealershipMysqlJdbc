@@ -111,7 +111,6 @@ INSERT INTO `contract` (`contractID`, `dateOfContract`, `customerName`, `custome
 (3, '2024-11-23', 'Michael Johnson', 'michaelj@email.com', '3C6UR5FL4KK123456'),
 (4, '2024-11-24', 'Emily Brown', 'emilyb@email.com', '4S3BNAP68J3000001'),
 (5, '2024-11-25', 'David Williams', 'davidw@email.com', '5YJ3E1EA4KF321987'),
-(6, '2024-11-26', 'Sarah Davis', 'sarahd@email.com', '1C4RJFBG5LC123456'),
 (7, '2024-11-27', 'James Wilson', 'jamesw@email.com', '2G1FA1E34J9205678'),
 (8, '2024-11-28', 'Olivia Moore', 'oliviam@email.com', '3LN6L5D97FR801234'),
 (9, '2024-11-29', 'Sophia Taylor', 'sophiat@email.com', '5FNRL6H7XLB123456'),
@@ -141,11 +140,10 @@ INSERT INTO `sales_contracts` (`contractID`, `salesTax`, `recordingFee`, `proces
 (3, 1600.00, 110.00, 55.00, TRUE, '3C6UR5FL4KK123456'),
 (4, 1800.00, 120.00, 60.00, FALSE, '4S3BNAP68J3000001'),
 (5, 2000.00, 130.00, 65.00, TRUE, '5YJ3E1EA4KF321987'),
-(6, 1700.00, 140.00, 70.00, FALSE, '1C4RJFBG5LC123456'),
 (7, 2200.00, 150.00, 80.00, TRUE, '2G1FA1E34J9205678'),
 (8, 1900.00, 160.00, 90.00, FALSE, '3LN6L5D97FR801234'),
 (9, 2100.00, 170.00, 95.00, TRUE, '5FNRL6H7XLB123456'),
-(10, 2300.00, 180.00, 100.00, FALSE, '1FA6P8TH8J5143210');dealershipsvehicles
+(10, 2300.00, 180.00, 100.00, FALSE, '1FA6P8TH8J5143210');
 
 # ---------------------------------------------------------------------- #
 # Add table "lease_contracts"                                            #
@@ -169,7 +167,6 @@ INSERT INTO `lease_contracts` (`contractID`, `expectingEndingValuePercentage`, `
 (3, 18.00, 350.00, '3C6UR5FL4KK123456'),
 (4, 12.00, 400.00, '4S3BNAP68J3000001'),
 (5, 20.00, 450.00, '5YJ3E1EA4KF321987'),
-(6, 14.00, 500.00, '1C4RJFBG5LC123456'),
 (7, 22.00, 550.00, '2G1FA1E34J9205678'),
 (8, 16.00, 600.00, '3LN6L5D97FR801234'),
 (9, 13.00, 650.00, '5FNRL6H7XLB123456'),

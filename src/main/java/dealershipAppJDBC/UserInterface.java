@@ -1,6 +1,8 @@
 package dealershipAppJDBC;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
+import dao.ContractDAO;
+import dao.ContractDAOMysqlJdbc;
 import dao.VehicleDAO;
 import dao.VehicleDAOMysqlJdbc;
 import model.*;
@@ -18,6 +20,7 @@ public class UserInterface {
 
     private Dealership dealership;
     private final VehicleDAO vehicleDAO;
+    private final ContractDAO contractDAO;
     private final Scanner scanner;
     private static final ResourceBundle rB = ResourceBundle.getBundle("messages");
 
@@ -36,6 +39,7 @@ public class UserInterface {
 
        DataSource dataSource= createDataSource(dbProperties);
         this.vehicleDAO=new VehicleDAOMysqlJdbc(dataSource);
+        this.contractDAO=new ContractDAOMysqlJdbc(dataSource);
     }
 
     private DataSource createDataSource(Properties dbProperties) {
@@ -156,7 +160,57 @@ public class UserInterface {
     }
 
     public void addContractRequest() {
+        try {
+            int contractID=promptForInt(rB.getString("contract.ID"));
+            String dateOfContract = promptForString(rB.getString("contract.date"));
+            String customerName = promptForString(rB.getString("contract.name"));
+            String customerEmail = promptForString(rB.getString("contract.email"));
 
+            String vin = promptForString(rB.getString("contract.vin"));
+            Vehicle vehicleSold = vehicleDAO.findVehicleByVin(vin);
+
+            if (vehicleSold == null) {
+                System.out.println(rB.getString("contract.vin.error"));
+                return;
+            }
+
+            String contractType = promptForString(rB.getString("contract.type")).toLowerCase();
+
+            Contract newContract;
+            switch (contractType) {
+                case "sale":
+                    boolean isFinance = promptForString(rB.getString("contract.finance")).equalsIgnoreCase("yes");
+                    newContract = new SalesContract(
+                            contractID,dateOfContract, customerName, customerEmail, vehicleSold, 0.0, 0.0, 0.0, isFinance
+                    );
+                    break;
+
+                case "lease":
+                    newContract = new LeaseContract(
+                            contractID,dateOfContract, customerName, customerEmail, vehicleSold, 0.0, 0.0
+                    );
+                    break;
+
+                default:
+                    System.out.println(rB.getString("error.contract.type"));
+                    return;
+            }
+
+
+            boolean contractAdded = contractDAO.addContract(newContract);
+
+            if (contractAdded) {
+                dealership.removeVehicle(vehicleSold);
+                System.out.println(rB.getString("contract.added"));
+            } else {
+                System.out.println(rB.getString("contract.error.adding"));
+            }
+
+        } catch (NumberFormatException e) {
+            System.out.println(rB.getString("contract.error1"));
+        } catch (Exception e) {
+            System.out.println(rB.getString("contract.error.general") + e.getMessage());
+        }
     }
 
     private void addVehicleRequest() {
