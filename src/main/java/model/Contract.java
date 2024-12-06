@@ -1,6 +1,7 @@
 package model;
 
 public abstract class Contract {
+    private final int contractID;
     private String dateOfContract;
     private   String customerName;
     private  String customerEmail;
@@ -8,11 +9,16 @@ public abstract class Contract {
 
 
 
-    public Contract(String dateOfContract, String customerName, String customerEmail, Vehicle vehicleSold) {
+    public Contract(int contractID,String dateOfContract, String customerName, String customerEmail, Vehicle vehicleSold) {
+        this.contractID=contractID;
         this.dateOfContract = dateOfContract;
         this.customerName = customerName;
         this.customerEmail = customerEmail;
         this.vehicleSold = vehicleSold;
+    }
+
+    public int getContractID() {
+        return contractID;
     }
 
     public String getDateOfContract() {

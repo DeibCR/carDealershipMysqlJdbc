@@ -12,8 +12,8 @@ public class SalesContract extends Contract {
     private final boolean isFinance;
     private static final ResourceBundle resourceBundle= ResourceBundle.getBundle("contract_config");
 
-    public SalesContract(String dateOfContract, String customerName, String customerEmail, Vehicle vehicleSold, double salesTax, double recordingFee, double processingFee, boolean isFinance) {
-        super(dateOfContract, customerName, customerEmail, vehicleSold);
+    public SalesContract(int contractID,String dateOfContract, String customerName, String customerEmail, Vehicle vehicleSold, double salesTax, double recordingFee, double processingFee, boolean isFinance) {
+        super(contractID,dateOfContract, customerName, customerEmail, vehicleSold);
         this.salesTax = Double.parseDouble(resourceBundle.getString("sales.tax"));
         this.recordingFee = Double.parseDouble(resourceBundle.getString("recording.fee"));
         this.processingFee = vehicleSold.getPrice()>10000 ?

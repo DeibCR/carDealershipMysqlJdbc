@@ -1,31 +1,57 @@
 package dealershipAppJDBC;
 
+import com.mysql.cj.jdbc.MysqlDataSource;
+import dao.VehicleDAO;
+import dao.VehicleDAOMysqlJdbc;
 import model.*;
 
+import javax.sql.DataSource;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.List;
+import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Scanner;
 import java.text.MessageFormat;
 
 public class UserInterface {
-    private final DealershipFileManager fileManager;
-    private final ContractDataManager contractDataManager;
+
     private Dealership dealership;
+    private final VehicleDAO vehicleDAO;
     private final Scanner scanner;
     private static final ResourceBundle rB = ResourceBundle.getBundle("messages");
 
+
     public UserInterface() {
 
-        fileManager = new DealershipFileManager();
-        contractDataManager = new ContractDataManager();
         scanner = new Scanner(System.in);
+
+        Properties dbProperties = new Properties();
+
+        try (FileInputStream fis = new FileInputStream("credentials.properties")) {
+            dbProperties.load(fis);
+        } catch (IOException e) {
+            throw new RuntimeException("Error loading database configuration: " + e.getMessage());
+        }
+
+       DataSource dataSource= createDataSource(dbProperties);
+        this.vehicleDAO=new VehicleDAOMysqlJdbc(dataSource);
     }
+
+    private DataSource createDataSource(Properties dbProperties) {
+        MysqlDataSource dataSource = new MysqlDataSource();
+        dataSource.setURL(dbProperties.getProperty("db.url"));
+        dataSource.setUser(dbProperties.getProperty("db.username"));
+        dataSource.setPassword(dbProperties.getProperty("db.password"));
+        return dataSource;
+    }
+
+
 
     private void init() {
 
-        dealership = fileManager.getDealership("./src/main/resources/inventory.csv", "D & B Used Cars", "111 Old Benbrook Rd", "817-555-5555");
-        List<Contract> contracts = contractDataManager.getContract("./src/main/resources/contracts.csv");
-        contracts.forEach(dealership::addContract);
+        dealership = new Dealership(1,"D & B Used Cars", "111 Old Benbrook Rd", "817-555-5555");
+
     }
 
     public void display() {
@@ -130,96 +156,22 @@ public class UserInterface {
     }
 
     public void addContractRequest() {
-        try {
-            String dateOfContract = promptForString(rB.getString("contract.date"));
-            String customerName = promptForString(rB.getString("contract.name"));
-            String customerEmail = promptForString(rB.getString("contract.email"));
 
-            int vin = promptForInt(rB.getString("contract.vin")); // to get the vehicle
-            Vehicle vehicleSold = dealership.getAllVehicles().stream()
-                    .filter(vehicle -> vehicle.getVin() == vin)
-                    .findFirst()
-                    .orElse(null);
-
-            if (vehicleSold == null) {
-                System.out.println(rB.getString("contract.vin.error"));
-                return;
-            }
-
-            String contractType = promptForString(rB.getString("contract.type")).toLowerCase();
-
-            Contract newContract;
-            if (contractType.equals("sale")) {
-                boolean isFinance = promptForString(rB.getString("contract.finance")).equalsIgnoreCase("yes");
-
-                newContract = new SalesContract(dateOfContract, customerName, customerEmail, vehicleSold, 0.0, 0.0, 0.0, isFinance);
-
-            } else if (contractType.equals("lease")) {
-
-                newContract = new LeaseContract(dateOfContract, customerName, customerEmail, vehicleSold, 0.0, 0.0);
-
-            } else {
-                System.out.println(rB.getString("error.contract.type"));
-                return;
-            }
-            dealership.addContract(newContract);
-            List<Contract> updatedContracts = dealership.getAllContracts();
-            contractDataManager.saveContracts(updatedContracts, "./src/main/resources/contracts.csv");
-            dealership.removeVehicle(vehicleSold);
-            saveDealershipData();
-            System.out.println(rB.getString("contract.added"));
-
-        } catch (NumberFormatException e) {
-            System.out.println(rB.getString("contract.error1"));
-
-        }
     }
 
     private void addVehicleRequest() {
-        try {
-            int id = promptForInt(rB.getString("vin.request"));
-            int year = promptForInt(rB.getString("year.request"));
-            String make = promptForString(rB.getString("make.request"));
-            String model = promptForString(rB.getString("model.request"));
-            String type = promptForString(rB.getString("type.request"));
-            String color = promptForString(rB.getString("color.request"));
-            int mileage = promptForInt(rB.getString("mileage.request"));
-            double price = promptForDouble(rB.getString("price.request"));
 
-            Vehicle newVehicle = new Vehicle(id, year, make, model, type, color, mileage, price);
-            dealership.addVehicle(newVehicle);
-            System.out.println(rB.getString("added.request"));
-            saveDealershipData();
-        } catch (NumberFormatException e) {
-            System.out.println(rB.getString("request.error"));
-        }
     }
 
     private void removeVehicle() {
-        try {
-            int vin = promptForInt(rB.getString("remove.vin.request"));
-            Vehicle vehicleToRemove = dealership.getAllVehicles().stream()
-                    .filter(vehicle -> vehicle.getVin() == vin)
-                    .findFirst()
-                    .orElse(null);
 
-            if (vehicleToRemove != null) {
-                dealership.removeVehicle(vehicleToRemove);
-                System.out.println((rB.getString("remove1")) + vin + (rB.getString("remove2")));
-                saveDealershipData();
-            } else {
-                System.out.println(rB.getString("remove.error1"));
-            }
-        } catch (NumberFormatException e) {
-            System.out.println(rB.getString("remove.error2"));
-        }
     }
 
     private void searchByPrice() {
         double minPrice = promptForDouble(rB.getString("search.price1"));
         double maxPrice = promptForDouble(rB.getString("search.price2"));
         headerDisplay();
-        dealership.getVehiclesByPrice(minPrice, maxPrice).forEach(System.out::println);
+        vehicleDAO.findVehicleByPriceRange(minPrice, maxPrice).forEach(System.out::println);
     }
 
 
@@ -227,33 +179,34 @@ public class UserInterface {
         String make = promptForString(rB.getString("search.make"));
         String model = promptForString(rB.getString("search.model"));
         headerDisplay();
-        dealership.getVehiclesByMakeModel(make, model).forEach(System.out::println);
+        vehicleDAO.findVehicleByMakeModel(make, model).forEach(System.out::println);
     }
 
     private void searchByColor() {
         String color = promptForString(rB.getString("search.color"));
         headerDisplay();
-        dealership.getVehiclesByColor(color).forEach(System.out::println);
+        vehicleDAO.findVehicleByColor(color).forEach(System.out::println);
     }
 
     private void searchByType() {
         String type = promptForString(rB.getString("search.type"));
         headerDisplay();
-        dealership.getVehiclesByType(type).forEach(System.out::println);
+        vehicleDAO.findVehicleByType(type).forEach(System.out::println);
     }
 
     private void searchByMileage() {
         int minMileage = promptForInt(rB.getString("search.mileage1"));
         int maxMileage = promptForInt(rB.getString("search.mileage2"));
         headerDisplay();
-        dealership.getVehiclesByMileage(minMileage, maxMileage).forEach(System.out::println);
+        vehicleDAO.findVehicleByMileage(minMileage, maxMileage).forEach(System.out::println);
 
     }
 
     private void searchByYear() {
-        int year = promptForInt(rB.getString("search.year"));
+        int minYear = promptForInt(rB.getString("search.year.min"));
+        int maxYear = promptForInt(rB.getString("search.year.max"));
         headerDisplay();
-        dealership.getVehiclesByYear(year).forEach(System.out::println);
+        vehicleDAO.findVehicleByYear(maxYear,minYear).forEach(System.out::println);
     }
 
     //helpers methods to clean the code:
@@ -294,7 +247,6 @@ public class UserInterface {
     }
 
     private void saveDealershipData() {
-        fileManager.saveDealership(dealership, "./src/main/resources/inventory.csv");
     }
 
 

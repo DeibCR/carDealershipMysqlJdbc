@@ -8,8 +8,8 @@ public class LeaseContract extends Contract {
 
     private static final ResourceBundle resourceBundle= ResourceBundle.getBundle("contract_config");// Using resource bundle to provide flexibility and maintainability
 
-    public LeaseContract(String dateOfContract, String customerName, String customerEmail, Vehicle vehicleSold, double expectedEndingValuePercentage, double leaseFee) {
-        super(dateOfContract, customerName, customerEmail, vehicleSold);
+    public LeaseContract(int contractID, String dateOfContract, String customerName, String customerEmail, Vehicle vehicleSold, double expectedEndingValuePercentage, double leaseFee) {
+        super(contractID,dateOfContract, customerName, customerEmail, vehicleSold);
         this.expectedEndingValuePercentage = vehicleSold.getPrice() *
                 Double.parseDouble(resourceBundle.getString("lease.expected.ending.value.percentage"));
         this.leaseFee = vehicleSold.getPrice() *
