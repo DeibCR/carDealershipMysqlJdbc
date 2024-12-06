@@ -130,12 +130,9 @@ public class UserInterface {
                 searchByYear();
                 return false;
             case 10:
-                getAllContracts();
-                return false;
-            case 11:
                 addContractRequest();
                 return false;
-            case 12:
+            case 11:
                 System.out.println(rB.getString("exit.output"));
                 return true;
             default:
