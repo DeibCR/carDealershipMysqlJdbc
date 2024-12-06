@@ -13,4 +13,9 @@ public interface VehicleDAO {
     List<Vehicle> findVehicleByMileage( int minOdometer, int maxOdometer);
     List<Vehicle> findVehicleByType( String vehicleType);
 
+    void addVehicle(Vehicle vehicle);
+    boolean removeVehicle(String vin);
+
+    List<Vehicle> findAllVehicles();
+
 }

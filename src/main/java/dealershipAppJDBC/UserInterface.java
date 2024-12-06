@@ -142,7 +142,7 @@ public class UserInterface {
 
     public void getAllVehicles() {
         headerDisplay();
-        dealership.getAllVehicles().forEach(System.out::println);
+        vehicleDAO.findAllVehicles().forEach(System.out::println);
     }
 
     public void getAllContracts() {
@@ -160,12 +160,47 @@ public class UserInterface {
     }
 
     private void addVehicleRequest() {
+        try {
+            String vin = promptForString(rB.getString("vin.request"));
+            int year = promptForInt(rB.getString("year.request"));
+            String make = promptForString(rB.getString("make.request"));
+            String model = promptForString(rB.getString("model.request"));
+            String type = promptForString(rB.getString("type.request"));
+            String color = promptForString(rB.getString("color.request"));
+            int mileage = promptForInt(rB.getString("mileage.request"));
+            double price = promptForDouble(rB.getString("price.request"));
+            boolean sold=promptForBoolean(rB.getString("sold.request"));
+
+            vehicleDAO.addVehicle(new Vehicle(vin,year,make,model,type,color,mileage,price,sold));
+            System.out.println(rB.getString("added.request"));
+            saveDealershipData();
+        } catch (NumberFormatException e) {
+            System.out.println(rB.getString("request.error"));
+        }
 
     }
 
     private void removeVehicle() {
+        try {
+
+            String vin = promptForString(rB.getString("remove.vin.request"));
+            boolean removed= vehicleDAO.removeVehicle(vin);
+
+            if (removed) {
+                System.out.println(rB.getString("remove1") + vin + rB.getString("remove2"));
+                saveDealershipData();
+            } else {
+                System.out.println(rB.getString("remove1") + vin + rB.getString("remove2"));
+            }
+        } catch (Exception e) {
+            System.out.println(rB.getString("remove.error2"));
+        }
+
+
 
     }
+
+
 
     private void searchByPrice() {
         double minPrice = promptForDouble(rB.getString("search.price1"));
@@ -244,6 +279,11 @@ public class UserInterface {
     private double promptForDouble(String message) {
         System.out.print(message);
         return Double.parseDouble(scanner.nextLine());
+    }
+
+    private boolean promptForBoolean(String message) {
+        System.out.print(message);
+        return Boolean.parseBoolean(scanner.nextLine());
     }
 
     private void saveDealershipData() {

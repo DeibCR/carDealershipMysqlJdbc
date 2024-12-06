@@ -221,5 +221,81 @@ public class VehicleDAOMysqlJdbc implements VehicleDAO{
         return vehiclesByType;
     }
 
+    @Override
+    public void addVehicle(Vehicle vehicle) {
+        String query = """
+                INSERT INTO vehicles (vin, year, make, model, vehicleType, color, odometer, price, sold)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """;
+        try (Connection connection=dataSource.getConnection();
+        PreparedStatement ps= connection.prepareStatement(query)){
+            ps.setString(1, vehicle.getVin());
+            ps.setInt(2, vehicle.getYear());
+            ps.setString(3, vehicle.getMake());
+            ps.setString(4, vehicle.getModel());
+            ps.setString(5, vehicle.getVehicleType());
+            ps.setString(6, vehicle.getColor());
+            ps.setInt(7, vehicle.getOdometer());
+            ps.setDouble(8, vehicle.getPrice());
+            ps.setBoolean(9, vehicle.isSold());
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    }
+
+    @Override
+    public boolean removeVehicle(String vin) {
+        String query = """
+                DELETE FROM vehicles
+                WHERE vin = ? 
+                """;
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setString(1,vin);
+
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+
+        return false;
+    }
+
+    @Override
+    public List<Vehicle> findAllVehicles() {
+        List<Vehicle> vehicles=new ArrayList<>();
+        String query = """
+                SELECT * 
+                FROM vehicles
+                """;
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                String vin = rs.getString("vin");
+                int year = rs.getInt("year");
+                String make = rs.getString("make");
+                String model = rs.getString("model");
+                String vehicleType = rs.getString("vehicleType");
+                String color = rs.getString("color");
+                int odometer = rs.getInt("odometer");
+                double price = rs.getDouble("price");
+                boolean sold = rs.getBoolean("sold");
+
+                Vehicle vehicle = new Vehicle(vin, year, make, model, vehicleType, color, odometer, price, sold);
+                vehicles.add(vehicle);
+            }
+        } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+        return vehicles;
+    }
+
 
 }
