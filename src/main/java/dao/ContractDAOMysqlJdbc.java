@@ -19,7 +19,7 @@ public class ContractDAOMysqlJdbc implements ContractDAO{
     }
 
     @Override
-    public void addContract(Contract contract, int dealershipID) {
+    public void addContract(Contract contract) {
 
     }
 
